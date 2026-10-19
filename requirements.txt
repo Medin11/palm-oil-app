@@ -1,1 +1,2 @@
 pywebview==6.2.1
+shapely==2.2.0

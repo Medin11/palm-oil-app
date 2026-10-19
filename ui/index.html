@@ -40,9 +40,48 @@
   </aside>
 
   <main class="content">
-    <h1 id="page-title">Overview</h1>
-    <section class="card">
-      <p class="empty-note">Nothing here yet.</p>
+    <section class="page" data-page="overview">
+      <h1>Overview</h1>
+      <div class="card">
+        <h2>Try the app with example data</h2>
+        <p class="muted">
+          Loads 5 fictional palm oil suppliers in Ketapang, West Kalimantan, with their mills and plots.
+          Works offline. Suppliers you add yourself are not changed.
+        </p>
+        <div class="actions">
+          <button class="primary-button" id="load-example">Load example data</button>
+          <span class="status-text" id="load-status"></span>
+          <button class="link-button" id="view-suppliers" hidden>View suppliers →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" data-page="suppliers">
+      <h1>Suppliers</h1>
+      <div class="supplier-grid" id="supplier-list"></div>
+      <div class="card empty-state" id="suppliers-empty" hidden>
+        <h2>No suppliers yet</h2>
+        <p class="muted">Load the example data on the Overview page to see how it works.</p>
+      </div>
+      <p class="footnote">
+        RSPO: international certificate for sustainable palm oil.
+        ISPO: Indonesia's national sustainability certificate.
+      </p>
+    </section>
+
+    <section class="page" data-page="map">
+      <h1>Map</h1>
+      <div class="card"><p class="muted">Nothing here yet.</p></div>
+    </section>
+
+    <section class="page" data-page="reports">
+      <h1>Reports</h1>
+      <div class="card"><p class="muted">Nothing here yet.</p></div>
+    </section>
+
+    <section class="page" data-page="settings">
+      <h1>Settings</h1>
+      <div class="card"><p class="muted">Nothing here yet.</p></div>
     </section>
   </main>
 

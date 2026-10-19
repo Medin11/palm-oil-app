@@ -1,0 +1,104 @@
+{
+  "description": "Offline demo data for Ketapang Regency, West Kalimantan. All company names are fictional. Mill and plot locations are placed in farming areas of Ketapang, but plot shapes are invented and do not match any real plantation.",
+  "region": "Ketapang, West Kalimantan",
+  "suppliers": [
+    {
+      "name": "PT Demo Sawit Lestari",
+      "certification": "RSPO+ISPO",
+      "mill": { "name": "Sandai Demo Mill", "latitude": -1.300, "longitude": 110.480 },
+      "plots": [
+        {
+          "type": "Feature",
+          "properties": { "name": "Block A1" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.500, -1.290], [110.521, -1.291], [110.522, -1.281], [110.512, -1.277], [110.501, -1.279], [110.500, -1.290]]]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": { "name": "Block A2" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.455, -1.325], [110.478, -1.326], [110.480, -1.310], [110.466, -1.307], [110.454, -1.312], [110.455, -1.325]]]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": { "name": "Block B1" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.530, -1.245], [110.545, -1.246], [110.546, -1.236], [110.531, -1.235], [110.530, -1.245]]]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Koperasi Demo Tani Makmur",
+      "certification": "ISPO",
+      "mill": { "name": "Nanga Tayap Demo Mill", "latitude": -1.560, "longitude": 110.500 },
+      "plots": [
+        {
+          "type": "Feature",
+          "properties": { "name": "Smallholder plot 1" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.5200, -1.5400], [110.5230, -1.5400], [110.5235, -1.5375], [110.5205, -1.5373], [110.5200, -1.5400]]]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": { "name": "Smallholder plot 2" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.5310, -1.5520], [110.5350, -1.5522], [110.5352, -1.5485], [110.5313, -1.5483], [110.5310, -1.5520]]]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PT Demo Agro Kapuas",
+      "certification": "RSPO",
+      "mill": { "name": "Marau Demo Mill", "latitude": -2.250, "longitude": 110.780 },
+      "plots": [
+        {
+          "type": "Feature",
+          "properties": { "name": "Estate block 1" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.790, -2.240], [110.820, -2.241], [110.821, -2.226], [110.805, -2.222], [110.791, -2.225], [110.790, -2.240]]]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CV Demo Tunas Baru",
+      "certification": "none",
+      "mill": { "name": "Manis Mata Demo Mill", "latitude": -2.080, "longitude": 110.580 },
+      "plots": [
+        {
+          "type": "Feature",
+          "properties": { "name": "Plot north" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.6000, -2.0700], [110.6070, -2.0705], [110.6075, -2.0655], [110.6005, -2.0650], [110.6000, -2.0700]]]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": { "name": "Plot south" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[110.5600, -2.1000], [110.5720, -2.1000], [110.5725, -2.0920], [110.5660, -2.0915], [110.5598, -2.0930], [110.5600, -2.1000]]]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PT Demo Borneo Palma",
+      "certification": "ISPO",
+      "mill": { "name": "Kendawangan Demo Mill", "latitude": -2.500, "longitude": 110.300 },
+      "plots": []
+    }
+  ]
+}

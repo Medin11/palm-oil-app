@@ -7,6 +7,8 @@ from pathlib import Path
 
 import webview
 
+from app.api import Api
+
 APP_TITLE = "Palm Oil Supply Chain Checker"
 UI_FOLDER = Path(__file__).parent / "ui"
 
@@ -18,6 +20,7 @@ def main():
         width=1200,
         height=800,
         min_size=(900, 600),
+        js_api=Api(),
     )
     webview.start()
 

@@ -45,7 +45,8 @@ Later / nice-to-have (do NOT build yet): supplier red-flag register, burn-then-p
 ## Design rules
 - Apple-like: clean, calm, lots of white space, rounded cards, one main action per screen
 - Slim left sidebar with: Overview, Suppliers, Map, Reports, Settings
-- Green, nature-inspired palette (forest green accents, warm neutral backgrounds); red/amber/green only for risk status
+- Green, nature-inspired palette (forest green accents, warm neutral backgrounds); red/amber/green are reserved for traffic-light meanings:
+  risk status, and certification badges (RSPO + ISPO = green, one of them = amber, none = red). Use neutral grey for everything else (e.g. "Demo", "Plot data missing")
 - Light and dark mode following the system setting
 - English only
 - Plain language in the interface (e.g. "Fires detected nearby", not technical terms); technical details behind a "Details" button

@@ -9,6 +9,14 @@
   --accent: #2f6b45;        /* forest green */
   --accent-soft: rgba(47, 107, 69, 0.12);
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+
+  /* Traffic-light colours (text colour + soft background) */
+  --green: #2e7d4a;
+  --green-soft: rgba(46, 125, 74, 0.13);
+  --amber: #9a6a00;
+  --amber-soft: rgba(230, 170, 30, 0.2);
+  --red: #b83a2e;
+  --red-soft: rgba(200, 60, 45, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +30,13 @@
     --accent: #6fbf8a;
     --accent-soft: rgba(111, 191, 138, 0.16);
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    --green: #7ccf96;
+    --green-soft: rgba(124, 207, 150, 0.16);
+    --amber: #f0c24f;
+    --amber-soft: rgba(240, 194, 79, 0.16);
+    --red: #f08a7e;
+    --red-soft: rgba(240, 138, 126, 0.16);
   }
 }
 
@@ -138,7 +153,6 @@ h1 {
 }
 
 .card {
-  min-height: 240px;
   padding: 24px;
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -146,7 +160,120 @@ h1 {
   box-shadow: var(--shadow);
 }
 
-.empty-note {
+.card h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.muted {
   margin: 0;
   color: var(--text-muted);
+  line-height: 1.5;
 }
+
+.footnote {
+  margin: 20px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ---------- Buttons ---------- */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.primary-button {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.primary-button:hover { filter: brightness(1.08); }
+.primary-button:disabled { opacity: 0.6; cursor: default; }
+
+@media (prefers-color-scheme: dark) {
+  .primary-button { color: #10231a; }
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.status-text { color: var(--text-muted); }
+
+/* ---------- Supplier cards ---------- */
+
+.supplier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.supplier-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.supplier-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.supplier-header h2 { margin: 0; }
+
+.supplier-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* Neutral grey label, e.g. "Demo" or "Plot data missing".
+   Red, amber and green are kept for risk status only. */
+.tag {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Certification badges: both = green, one = yellow, none = red */
+.badge {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-amber { background: var(--amber-soft); color: var(--amber); }
+.badge-red   { background: var(--red-soft);   color: var(--red); }
