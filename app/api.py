@@ -23,3 +23,7 @@ class Api:
     def get_suppliers(self):
         with closing(database.connect(self._db_path)) as conn:
             return database.get_suppliers(conn)
+
+    def get_map_data(self):
+        with closing(database.connect(self._db_path)) as conn:
+            return database.get_map_data(conn)

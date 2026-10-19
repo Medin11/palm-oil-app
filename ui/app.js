@@ -7,6 +7,7 @@ function showPage(name) {
   navItems.forEach((item) => item.classList.toggle("active", item.dataset.page === name));
   pages.forEach((page) => (page.hidden = page.dataset.page !== name));
   if (name === "suppliers") renderSuppliers();
+  if (name === "map") renderMap(); // defined in map.js
 }
 
 navItems.forEach((button) => {

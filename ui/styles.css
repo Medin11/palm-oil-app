@@ -265,6 +265,82 @@ h1 {
   font-weight: 500;
 }
 
+/* ---------- Map ---------- */
+
+.map-card {
+  height: calc(100vh - 140px);
+  min-height: 400px;
+  padding: 0;
+  overflow: hidden;
+  background: #b9d3dc; /* sea colour, shown where there is no land */
+}
+
+.map-card[hidden] { display: none; }
+
+.leaflet-container { font: inherit; }
+
+.map-legend {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2a24;
+  font-size: 12px;
+  box-shadow: var(--shadow);
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-row + .legend-row { margin-top: 6px; }
+
+.legend-symbol {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.legend-mill {
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #26302a;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+.legend-plot {
+  border: 2px solid #4f6283;
+  border-radius: 3px;
+  background: rgba(79, 98, 131, 0.25);
+}
+
+.legend-sourcing {
+  border: 1.5px dashed #6b746e;
+  border-radius: 50%;
+}
+
+/* Popups stay light in dark mode, like the map itself. */
+.map-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 180px;
+  color: #1f2a24;
+  /* use the light-mode badge colours on the light popup */
+  --green: #2e7d4a;
+  --green-soft: rgba(46, 125, 74, 0.13);
+  --amber: #9a6a00;
+  --amber-soft: rgba(230, 170, 30, 0.2);
+  --red: #b83a2e;
+  --red-soft: rgba(200, 60, 45, 0.12);
+}
+
+.map-popup .muted { color: #6b746e; }
+.leaflet-popup-content .map-popup p { margin: 0; } /* Leaflet adds big gaps by default */
+.map-popup .badge { margin-top: 4px; }
+
 /* Certification badges: both = green, one = yellow, none = red */
 .badge {
   flex-shrink: 0;

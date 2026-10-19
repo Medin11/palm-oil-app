@@ -58,6 +58,24 @@ class ExampleDataTests(unittest.TestCase):
         conn.close()
         self.assertEqual(statuses, {"not_checked"})
 
+    def test_map_data(self):
+        self.api.load_example_data()
+        data = self.api.get_map_data()
+        self.assertEqual(len(data["mills"]), 5)
+        self.assertEqual(len(data["plots"]), 8)
+        self.assertEqual(data["plots"][0]["geometry"]["type"], "Polygon")
+
+    def test_map_has_one_sourcing_area_for_mill_only_supplier(self):
+        self.api.load_example_data()
+        areas = self.api.get_map_data()["sourcing_areas"]
+        self.assertEqual(len(areas), 1)
+        self.assertEqual(areas[0]["supplier_name"], "PT Demo Borneo Palma")
+        self.assertEqual(areas[0]["radius_km"], 50)
+
+    def test_map_data_empty_database(self):
+        data = self.api.get_map_data()
+        self.assertEqual(data, {"mills": [], "plots": [], "sourcing_areas": []})
+
     def test_reload_keeps_user_suppliers(self):
         conn = database.connect(self.db_path)
         with conn:

@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Palm Oil Supply Chain Checker</title>
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -69,9 +70,13 @@
       </p>
     </section>
 
-    <section class="page" data-page="map">
+    <section class="page map-page" data-page="map">
       <h1>Map</h1>
-      <div class="card"><p class="muted">Nothing here yet.</p></div>
+      <div class="card map-card" id="map"></div>
+      <div class="card empty-state" id="map-empty" hidden>
+        <h2>No suppliers to show yet</h2>
+        <p class="muted">Load the example data on the Overview page to see mills and plots on the map.</p>
+      </div>
     </section>
 
     <section class="page" data-page="reports">
@@ -85,6 +90,9 @@
     </section>
   </main>
 
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="data/kalimantan_land.js"></script>
   <script src="app.js"></script>
+  <script src="map.js"></script>
 </body>
 </html>
