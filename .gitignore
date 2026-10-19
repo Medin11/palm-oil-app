@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Build output (PyInstaller)
+build/
+dist/
+*.spec
+
+# Local data and secrets (never commit)
+*.db
+*.sqlite
+.env
+
+# macOS
+.DS_Store
