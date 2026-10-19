@@ -54,6 +54,26 @@ function formatHectares(value) {
   return `${Math.round(value).toLocaleString("en-GB")} ha`;
 }
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// "2026-09-14" or "2026-09-14T10:05:00" -> "14 Sep 2026"
+function formatDate(isoText) {
+  const [year, month, day] = isoText.slice(0, 10).split("-").map(Number);
+  return `${day} ${MONTHS[month - 1]} ${year}`;
+}
+
+// 1 -> "1 fire", 3 -> "3 fires"
+function plural(count, word) {
+  return `${count} ${word}${count === 1 ? "" : "s"}`;
+}
+
+// A small coloured dot plus plain text, e.g. (amber) "Fires detected nearby".
+function statusLine(status, text) {
+  const line = el("span", "status-line");
+  line.append(el("span", `status-dot status-${status}`), el("span", null, text));
+  return line;
+}
+
 // ---------- Overview: load example data ----------
 
 const loadButton = document.getElementById("load-example");
@@ -92,6 +112,8 @@ function supplierCard(supplier) {
 
   card.append(el("p", "muted", supplier.mill_name ? `Mill: ${supplier.mill_name}` : "No mill added"));
 
+  card.append(fireRiskSection(supplier.fire));
+
   const footer = el("div", "supplier-footer");
   if (supplier.plot_count > 0) {
     const plots = supplier.plot_count === 1 ? "1 plot" : `${supplier.plot_count} plots`;
@@ -112,10 +134,102 @@ function supplierCard(supplier) {
   return card;
 }
 
+// FIRE RISK                Details
+// (dot) Fires detected nearby
+// ...with a hidden details list underneath.
+function fireRiskSection(fire) {
+  const section = el("div", "risk-section");
+  const header = el("div", "risk-header");
+  header.append(el("span", "risk-label", "Fire risk"));
+  section.append(header);
+
+  if (!fire) {
+    section.append(statusLine("not_checked", "Not checked yet"));
+    return section;
+  }
+
+  const detailsButton = el("button", "link-button details-button", "Details");
+  header.append(detailsButton);
+  section.append(statusLine(fire.status, fire.summary));
+
+  const details = el("ul", "risk-details");
+  details.hidden = true;
+  for (const result of fire.results) details.append(fireDetailItem(result));
+
+  detailsButton.addEventListener("click", () => {
+    details.hidden = !details.hidden;
+    detailsButton.textContent = details.hidden ? "Details" : "Hide details";
+  });
+
+  section.append(details);
+  return section;
+}
+
+function fireDetailItem(result) {
+  const d = result.details;
+  const item = el("li");
+  const heading = el("div", "detail-heading");
+  heading.append(el("strong", null, result.place_name), statusLine(result.status, result.summary));
+  item.append(heading);
+
+  let count;
+  if (result.is_mill) {
+    count = d.fires_in_sourcing_area
+      ? `${plural(d.fires_in_sourcing_area, "fire")} within ${d.radius_km} km of the mill`
+      : `No fires within ${d.radius_km} km of the mill`;
+  } else if (d.fires_on_plot) {
+    count = `${plural(d.fires_on_plot, "fire")} on the plot`;
+  } else if (d.fires_nearby) {
+    count = `${plural(d.fires_nearby, "fire")} within ${d.nearby_km} km`;
+  } else {
+    count = `No fires within ${d.nearby_km} km`;
+  }
+  item.append(el("p", "muted", count));
+
+  const nearest =
+    d.nearest_km === null
+      ? "No fires detected in the last 12 months"
+      : `Nearest fire: ${d.nearest_km === 0 ? "on the plot" : `${d.nearest_km} km away`}, ` +
+        `${formatDate(d.nearest_date)} (${d.nearest_satellite})`;
+  item.append(el("p", "muted", nearest));
+  return item;
+}
+
+const checkInfo = document.getElementById("check-info");
+const runChecksButton = document.getElementById("run-checks");
+
+function showCheckInfo(lastCheck) {
+  if (!lastCheck.checked_at) {
+    checkInfo.textContent = "Not checked yet. Click “Check suppliers” to screen for fire risk.";
+    return;
+  }
+  const time = lastCheck.checked_at.slice(11, 16);
+  const source = lastCheck.uses_demo_data ? " · Simulated fire data (demo)" : "";
+  checkInfo.textContent = `Last checked ${formatDate(lastCheck.checked_at)}, ${time}${source}`;
+}
+
+runChecksButton.addEventListener("click", async () => {
+  runChecksButton.disabled = true;
+  checkInfo.textContent = "Checking…";
+  try {
+    showCheckInfo(await (await api()).run_checks());
+    await renderSuppliers();
+  } catch (error) {
+    checkInfo.textContent = "The check could not be completed.";
+    console.error(error);
+  } finally {
+    runChecksButton.disabled = false;
+  }
+});
+
 async function renderSuppliers() {
-  const suppliers = await (await api()).get_suppliers();
+  const pywebviewApi = await api();
+  const [suppliers, lastCheck] = await Promise.all([pywebviewApi.get_suppliers(), pywebviewApi.get_last_check()]);
   supplierList.replaceChildren(...suppliers.map(supplierCard));
   suppliersEmpty.hidden = suppliers.length > 0;
+  runChecksButton.hidden = suppliers.length === 0;
+  checkInfo.hidden = suppliers.length === 0;
+  showCheckInfo(lastCheck);
 }
 
 // ---------- Start ----------

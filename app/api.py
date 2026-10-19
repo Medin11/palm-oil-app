@@ -7,6 +7,7 @@ window.pywebview.api.<method_name>().
 from contextlib import closing
 
 from app import database
+from app.checks import fire
 from app.demo import load_demo_data
 
 
@@ -24,6 +25,18 @@ class Api:
         with closing(database.connect(self._db_path)) as conn:
             return database.get_suppliers(conn)
 
+    def run_checks(self):
+        with closing(database.connect(self._db_path)) as conn:
+            fire.run_fire_check(conn)
+            database.update_plot_risk_status(conn)
+            return database.get_last_check(conn)
+
+    def get_last_check(self):
+        with closing(database.connect(self._db_path)) as conn:
+            return database.get_last_check(conn)
+
     def get_map_data(self):
         with closing(database.connect(self._db_path)) as conn:
-            return database.get_map_data(conn)
+            data = database.get_map_data(conn)
+            data["hotspots"] = fire.relevant_hotspots(conn)
+            return data

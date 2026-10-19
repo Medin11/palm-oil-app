@@ -4,14 +4,24 @@
 const MAP_COLOURS = {
   land: "#e9e4d6",
   landBorder: "#c9c1aa",
-  plot: "#4f6283",      // neutral slate blue: "not checked yet"
   mill: "#26302a",
   sourcing: "#6b746e",
 };
 
-const RISK_LABELS = {
-  not_checked: "Not checked yet",
+// Plot colour by overall risk status. Slate blue = not checked yet.
+const PLOT_COLOURS = {
+  not_checked: "#4f6283",
+  green: "#2e9e57",
+  amber: "#e0a526",
+  red: "#d0453a",
 };
+
+const FLAME_SVG =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">' +
+  '<path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5Z" ' +
+  'fill="#e8590c" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+
+const fireIcon = L.divIcon({ className: "fire-icon", html: FLAME_SVG, iconSize: [18, 18], iconAnchor: [9, 12] });
 
 let map = null;
 let dataLayer = null;
@@ -49,13 +59,19 @@ function createLegend() {
   legend.onAdd = () => {
     const box = el("div", "map-legend");
     const rows = [
+      ["legend-plot legend-plot-red", "Plot: fire detected on plot"],
+      ["legend-plot legend-plot-amber", "Plot: fires detected nearby"],
+      ["legend-plot legend-plot-green", "Plot: no fires detected nearby"],
+      ["legend-plot", "Plot: not checked yet"],
+      ["legend-fire", "Fire detection (last 12 months)"],
       ["legend-mill", "Mill"],
-      ["legend-plot", "Plot (not checked yet)"],
       ["legend-sourcing", "Plot data missing: possible sourcing area (50 km)"],
     ];
     for (const [symbolClass, label] of rows) {
       const row = el("div", "legend-row");
-      row.append(el("span", `legend-symbol ${symbolClass}`), el("span", null, label));
+      const symbol = el("span", `legend-symbol ${symbolClass}`);
+      if (symbolClass === "legend-fire") symbol.innerHTML = FLAME_SVG; // our own fixed icon, not user data
+      row.append(symbol, el("span", null, label));
       box.append(row);
     }
     return box;
@@ -76,9 +92,20 @@ function plotPopup(plot) {
   box.append(
     el("strong", null, plot.supplier_name),
     el("p", "muted", `${plot.name} · ${formatHectares(plot.area_ha)}`),
-    el("p", "muted", `Risk check: ${RISK_LABELS[plot.risk_status] || plot.risk_status}`),
+    statusLine(plot.risk_status, plot.fire_summary || "Not checked yet"),
     certificationBadge(plot.certification)
   );
+  return box;
+}
+
+function firePopup(hotspot) {
+  const box = el("div", "map-popup");
+  box.append(
+    el("strong", null, "Fire detection"),
+    el("p", "muted", formatDate(hotspot.detected_on)),
+    el("p", "muted", `${hotspot.satellite} · ${hotspot.confidence} confidence`)
+  );
+  if (hotspot.is_demo) box.append(el("p", "muted", "Simulated fire data (demo)"));
   return box;
 }
 
@@ -120,10 +147,17 @@ async function renderMap() {
   }
 
   for (const plot of data.plots) {
+    const colour = PLOT_COLOURS[plot.risk_status] || PLOT_COLOURS.not_checked;
     L.geoJSON(plot.geometry, {
-      style: { color: MAP_COLOURS.plot, weight: 2, fillColor: MAP_COLOURS.plot, fillOpacity: 0.25 },
+      style: { color: colour, weight: 2, fillColor: colour, fillOpacity: 0.3 },
     })
       .bindPopup(plotPopup(plot))
+      .addTo(dataLayer);
+  }
+
+  for (const hotspot of data.hotspots) {
+    L.marker([hotspot.latitude, hotspot.longitude], { icon: fireIcon })
+      .bindPopup(firePopup(hotspot))
       .addTo(dataLayer);
   }
 

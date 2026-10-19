@@ -74,7 +74,7 @@ class ExampleDataTests(unittest.TestCase):
 
     def test_map_data_empty_database(self):
         data = self.api.get_map_data()
-        self.assertEqual(data, {"mills": [], "plots": [], "sourcing_areas": []})
+        self.assertEqual(data, {"mills": [], "plots": [], "sourcing_areas": [], "hotspots": []})
 
     def test_reload_keeps_user_suppliers(self):
         conn = database.connect(self.db_path)

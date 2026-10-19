@@ -220,11 +220,97 @@ h1 {
 
 .status-text { color: var(--text-muted); }
 
+/* ---------- Page header with main action ---------- */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.page-header h1 { margin: 0; }
+
+.check-info {
+  margin: 0 0 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ---------- Risk status ---------- */
+
+.status-line {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 7px;
+  line-height: 1.4;
+}
+
+.status-dot {
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  margin-top: 0.3em; /* lines the dot up with the first line of text */
+  border-radius: 50%;
+}
+
+.status-green       { background: #2e9e57; }
+.status-amber       { background: #e0a526; }
+.status-red         { background: #d0453a; }
+.status-not_checked { background: transparent; border: 1.5px solid var(--text-muted); }
+
+.risk-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.risk-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.risk-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.details-button { font-size: 13px; }
+
+.risk-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 10px 12px;
+  list-style: none;
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 13px;
+}
+
+.risk-details[hidden] { display: none; }
+
+.detail-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-bottom: 2px;
+}
+
 /* ---------- Supplier cards ---------- */
 
 .supplier-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-items: start; /* opening Details on one card doesn't stretch its neighbours */
   gap: 16px;
 }
 
@@ -319,6 +405,15 @@ h1 {
   border: 1.5px dashed #6b746e;
   border-radius: 50%;
 }
+
+.legend-plot-green { border-color: #2e9e57; background: rgba(46, 158, 87, 0.3); }
+.legend-plot-amber { border-color: #e0a526; background: rgba(224, 165, 38, 0.3); }
+.legend-plot-red   { border-color: #d0453a; background: rgba(208, 69, 58, 0.3); }
+
+.legend-fire svg { display: block; width: 14px; height: 14px; }
+
+.fire-icon { background: none; border: none; }
+.fire-icon svg { display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)); }
 
 /* Popups stay light in dark mode, like the map itself. */
 .map-popup {

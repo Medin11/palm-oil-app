@@ -58,12 +58,20 @@
     </section>
 
     <section class="page" data-page="suppliers">
-      <h1>Suppliers</h1>
+      <div class="page-header">
+        <h1>Suppliers</h1>
+        <button class="primary-button" id="run-checks">Check suppliers</button>
+      </div>
+      <p class="check-info" id="check-info"></p>
       <div class="supplier-grid" id="supplier-list"></div>
       <div class="card empty-state" id="suppliers-empty" hidden>
         <h2>No suppliers yet</h2>
         <p class="muted">Load the example data on the Overview page to see how it works.</p>
       </div>
+      <p class="footnote">
+        Fire risk is based on satellite fire detections from the last 12 months. Satellites can miss fires
+        under clouds or haze. This is a risk screening, not proof.
+      </p>
       <p class="footnote">
         RSPO: international certificate for sustainable palm oil.
         ISPO: Indonesia's national sustainability certificate.
