@@ -208,6 +208,39 @@ h1 {
   .primary-button { color: #10231a; }
 }
 
+.secondary-button {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--card-bg);
+  color: var(--text);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.secondary-button:hover { background: var(--border); }
+
+/* ---------- Reports page ---------- */
+
+.report-card { max-width: 640px; }
+
+.report-contents {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.report-saved {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.report-saved p { margin: 0; }
+.report-saved .actions { margin-top: 12px; }
+
 .link-button {
   padding: 0;
   border: none;

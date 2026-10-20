@@ -13,6 +13,7 @@ import json
 from datetime import date, timedelta
 
 from app.database import SOURCING_RADIUS_KM, plots_and_mill_only_suppliers, save_check_results
+from app.formatting import format_date, format_km, plural
 from app.geometry import distance_between_points_metres, distance_to_plot_metres
 
 # A satellite fire pixel is about 375 m wide (VIIRS), so a fire just outside
@@ -89,6 +90,30 @@ def check_mill_only(latitude, longitude, hotspots):
 
     details = {"fires_in_sourcing_area": in_area, "radius_km": SOURCING_RADIUS_KM, **_nearest_details(_nearest(distances))}
     return "amber", summary, details
+
+
+def detail_lines(details, is_mill):
+    """The numbers behind a result, as plain-language lines for Details and the report."""
+    d = details
+    if is_mill:
+        count = (
+            f"{plural(d['fires_in_sourcing_area'], 'fire')} within {d['radius_km']} km of the mill"
+            if d["fires_in_sourcing_area"]
+            else f"No fires within {d['radius_km']} km of the mill"
+        )
+    elif d["fires_on_plot"]:
+        count = f"{plural(d['fires_on_plot'], 'fire')} on the plot"
+    elif d["fires_nearby"]:
+        count = f"{plural(d['fires_nearby'], 'fire')} within {format_km(d['nearby_km'])}"
+    else:
+        count = f"No fires within {format_km(d['nearby_km'])}"
+
+    if d["nearest_km"] is None:
+        nearest = f"No fires detected in the last {LOOKBACK_DAYS // 30} months"
+    else:
+        where = "on the plot" if d["nearest_km"] == 0 else f"{format_km(d['nearest_km'])} away"
+        nearest = f"Nearest fire: {where}, {format_date(d['nearest_date'])} ({d['nearest_satellite']})"
+    return [count, nearest]
 
 
 def run_fire_check(conn, today=None):

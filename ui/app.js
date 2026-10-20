@@ -8,6 +8,7 @@ function showPage(name) {
   pages.forEach((page) => (page.hidden = page.dataset.page !== name));
   if (name === "suppliers") renderSuppliers();
   if (name === "map") renderMap(); // defined in map.js
+  if (name === "reports") renderReports();
 }
 
 navItems.forEach((button) => {
@@ -136,11 +137,11 @@ function supplierCard(supplier) {
   return card;
 }
 
-// The checks shown on each card, in order. detailLines turns one result's
-// numbers into plain-language lines for the Details list.
+// The checks shown on each card, in order. The plain-language Details lines
+// come from Python, so the app and the PDF report always say the same thing.
 const CHECKS = [
-  { type: "fire", label: "Fire risk", detailLines: fireDetailLines },
-  { type: "forest", label: "Forest loss", detailLines: forestDetailLines },
+  { type: "fire", label: "Fire risk" },
+  { type: "forest", label: "Forest loss" },
 ];
 
 // FIRE RISK                Details
@@ -163,7 +164,7 @@ function riskSection(check, outcome) {
 
   const details = el("ul", "risk-details");
   details.hidden = true;
-  for (const result of outcome.results) details.append(detailItem(result, check));
+  for (const result of outcome.results) details.append(detailItem(result));
 
   detailsButton.addEventListener("click", () => {
     details.hidden = !details.hidden;
@@ -174,59 +175,13 @@ function riskSection(check, outcome) {
   return section;
 }
 
-function detailItem(result, check) {
+function detailItem(result) {
   const item = el("li");
   const heading = el("div", "detail-heading");
   heading.append(el("strong", null, result.place_name), statusLine(result.status, result.summary));
   item.append(heading);
-  for (const line of check.detailLines(result)) item.append(el("p", "muted", line));
+  for (const line of result.lines) item.append(el("p", "muted", line));
   return item;
-}
-
-function fireDetailLines(result) {
-  const d = result.details;
-  let count;
-  if (result.is_mill) {
-    count = d.fires_in_sourcing_area
-      ? `${plural(d.fires_in_sourcing_area, "fire")} within ${d.radius_km} km of the mill`
-      : `No fires within ${d.radius_km} km of the mill`;
-  } else if (d.fires_on_plot) {
-    count = `${plural(d.fires_on_plot, "fire")} on the plot`;
-  } else if (d.fires_nearby) {
-    count = `${plural(d.fires_nearby, "fire")} within ${d.nearby_km} km`;
-  } else {
-    count = `No fires within ${d.nearby_km} km`;
-  }
-
-  const nearest =
-    d.nearest_km === null
-      ? "No fires detected in the last 12 months"
-      : `Nearest fire: ${d.nearest_km === 0 ? "on the plot" : `${d.nearest_km} km away`}, ` +
-        `${formatDate(d.nearest_date)} (${d.nearest_satellite})`;
-  return [count, nearest];
-}
-
-function forestDetailLines(result) {
-  const d = result.details;
-  const nearest =
-    d.nearest_km === null
-      ? "No forest loss since 2021 found in the area"
-      : `Nearest clearing: ${d.nearest_km === 0 ? "on the plot" : `${d.nearest_km} km away`} (${d.nearest_year})`;
-
-  if (result.is_mill) {
-    const cleared = d.cleared_in_sourcing_area_ha
-      ? `${formatHectares(d.cleared_in_sourcing_area_ha)} of forest cleared within ${d.radius_km} km of the mill since 2021`
-      : `No forest loss within ${d.radius_km} km of the mill since 2021`;
-    return [cleared, nearest];
-  }
-
-  const forest2020 = d.forest_2020_ha
-    ? `Forest on the plot on 31 Dec 2020: ${formatHectares(d.forest_2020_ha)}`
-    : "No forest on the plot on 31 Dec 2020";
-  const cleared = d.cleared_ha
-    ? `Cleared since 2021: ${formatHectares(d.cleared_ha)} (${d.cleared_years.join(", ")})`
-    : "No clearing on the plot since 2021";
-  return [forest2020, cleared, nearest];
 }
 
 const checkInfo = document.getElementById("check-info");
@@ -239,7 +194,10 @@ function showCheckInfo(lastCheck) {
   }
   const time = lastCheck.checked_at.slice(11, 16);
   const source = lastCheck.uses_demo_data ? " · Simulated fire and forest data (demo)" : "";
-  checkInfo.textContent = `Last checked ${formatDate(lastCheck.checked_at)}, ${time}${source}`;
+  checkInfo.textContent = `Last checked ${formatDate(lastCheck.checked_at)}, ${time}${source} · `;
+  const exportLink = el("button", "link-button", "Export report →");
+  exportLink.addEventListener("click", () => showPage("reports"));
+  checkInfo.append(exportLink);
 }
 
 runChecksButton.addEventListener("click", async () => {
@@ -265,6 +223,47 @@ async function renderSuppliers() {
   checkInfo.hidden = suppliers.length === 0;
   showCheckInfo(lastCheck);
 }
+
+// ---------- Reports page ----------
+
+const exportButton = document.getElementById("export-report");
+const reportStatus = document.getElementById("report-status");
+const reportSaved = document.getElementById("report-saved");
+
+async function renderReports() {
+  const lastCheck = await (await api()).get_last_check();
+  exportButton.disabled = !lastCheck.checked_at;
+  if (!lastCheck.checked_at) {
+    reportStatus.textContent = "Check your suppliers first (Suppliers → Check suppliers).";
+  } else if (reportSaved.hidden) {
+    // nothing saved yet in this session: say which check the report will use
+    reportStatus.textContent = `Based on the check of ${formatDate(lastCheck.checked_at)}, ${lastCheck.checked_at.slice(11, 16)}`;
+  }
+}
+
+exportButton.addEventListener("click", async () => {
+  exportButton.disabled = true;
+  reportStatus.textContent = "Choose where to save the report…";
+  try {
+    const result = await (await api()).export_report();
+    if (result.saved) {
+      reportStatus.textContent = `Report saved (${plural(result.pages, "page")})`;
+      document.getElementById("report-file").textContent = result.file_name;
+      document.getElementById("report-folder").textContent = `in ${result.folder}`;
+      reportSaved.hidden = false;
+    } else {
+      reportStatus.textContent = result.error || "Not saved.";
+    }
+  } catch (error) {
+    reportStatus.textContent = "The report could not be created.";
+    console.error(error);
+  } finally {
+    exportButton.disabled = false;
+  }
+});
+
+document.getElementById("open-report").addEventListener("click", async () => (await api()).open_report());
+document.getElementById("show-report").addEventListener("click", async () => (await api()).show_report_in_finder());
 
 // ---------- Start ----------
 

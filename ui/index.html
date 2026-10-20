@@ -93,7 +93,28 @@
 
     <section class="page" data-page="reports">
       <h1>Reports</h1>
-      <div class="card"><p class="muted">Nothing here yet.</p></div>
+      <div class="card report-card">
+        <h2>Due diligence report (PDF)</h2>
+        <p class="muted">A report of your last check, to keep on file or share with your team:</p>
+        <ul class="report-contents">
+          <li>Summary of every supplier with fire and forest results</li>
+          <li>One page per supplier with a drawing of its plots</li>
+          <li>Method, limits and data sources</li>
+          <li>Plot locations (coordinates) for EUDR geolocation</li>
+        </ul>
+        <div class="actions">
+          <button class="primary-button" id="export-report">Export report</button>
+          <span class="status-text" id="report-status"></span>
+        </div>
+        <div class="report-saved" id="report-saved" hidden>
+          <p><strong id="report-file"></strong></p>
+          <p class="muted" id="report-folder"></p>
+          <div class="actions">
+            <button class="secondary-button" id="open-report">Open PDF</button>
+            <button class="secondary-button" id="show-report">Show in Finder</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="page" data-page="settings">

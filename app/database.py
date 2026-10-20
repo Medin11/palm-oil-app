@@ -231,7 +231,7 @@ def get_map_data(conn):
         for row in conn.execute(
             """
             SELECT m.id, m.name, m.latitude, m.longitude,
-                   s.name AS supplier_name, s.certification,
+                   s.id AS supplier_id, s.name AS supplier_name, s.certification,
                    (SELECT COUNT(*) FROM plots WHERE supplier_id = s.id) AS plot_count
             FROM mills m JOIN suppliers s ON s.id = m.supplier_id
             ORDER BY s.name, m.name
@@ -248,7 +248,7 @@ def get_map_data(conn):
     for row in conn.execute(
         """
         SELECT p.id, p.name, p.geometry, p.area_ha, p.risk_status,
-               s.name AS supplier_name, s.certification
+               s.id AS supplier_id, s.name AS supplier_name, s.certification
         FROM plots p
         JOIN suppliers s ON s.id = p.supplier_id
         ORDER BY s.name, p.name

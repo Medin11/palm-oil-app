@@ -18,6 +18,7 @@ from shapely.geometry import Point, shape
 from shapely.ops import unary_union
 
 from app.database import SOURCING_RADIUS_KM, plots_and_mill_only_suppliers, save_check_results
+from app.formatting import format_hectares, format_km
 from app.geometry import shape_area_hectares, shapes_distance_metres
 
 CUTOFF_YEAR = 2020           # EUDR cut-off: 31 Dec 2020. Loss from 2021 on counts.
@@ -109,6 +110,38 @@ def check_mill_only(latitude, longitude, deforestation):
         **_nearest_details(_nearest(mill, deforestation)),
     }
     return "amber", summary, details
+
+
+def detail_lines(details, is_mill):
+    """The numbers behind a result, as plain-language lines for Details and the report."""
+    d = details
+    since = CUTOFF_YEAR + 1
+    if d["nearest_km"] is None:
+        nearest = f"No forest loss since {since} found in the area"
+    else:
+        where = "on the plot" if d["nearest_km"] == 0 else f"{format_km(d['nearest_km'])} away"
+        nearest = f"Nearest clearing: {where} ({d['nearest_year']})"
+
+    if is_mill:
+        cleared = (
+            f"{format_hectares(d['cleared_in_sourcing_area_ha'])} of forest cleared within "
+            f"{d['radius_km']} km of the mill since {since}"
+            if d["cleared_in_sourcing_area_ha"]
+            else f"No forest loss within {d['radius_km']} km of the mill since {since}"
+        )
+        return [cleared, nearest]
+
+    forest_2020 = (
+        f"Forest on the plot on 31 Dec {CUTOFF_YEAR}: {format_hectares(d['forest_2020_ha'])}"
+        if d["forest_2020_ha"]
+        else f"No forest on the plot on 31 Dec {CUTOFF_YEAR}"
+    )
+    cleared = (
+        f"Cleared since {since}: {format_hectares(d['cleared_ha'])} ({', '.join(map(str, d['cleared_years']))})"
+        if d["cleared_ha"]
+        else f"No clearing on the plot since {since}"
+    )
+    return [forest_2020, cleared, nearest]
 
 
 def run_forest_check(conn):
