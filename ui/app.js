@@ -50,8 +50,10 @@ function certificationColour(certification) {
   return "badge-red";
 }
 
+// 1000.4 -> "1,000 ha", 2.84 -> "2.8 ha" (small areas keep one decimal)
 function formatHectares(value) {
-  return `${Math.round(value).toLocaleString("en-GB")} ha`;
+  const rounded = value < 10 ? Math.round(value * 10) / 10 : Math.round(value);
+  return `${rounded.toLocaleString("en-GB")} ha`;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -112,7 +114,7 @@ function supplierCard(supplier) {
 
   card.append(el("p", "muted", supplier.mill_name ? `Mill: ${supplier.mill_name}` : "No mill added"));
 
-  card.append(fireRiskSection(supplier.fire));
+  for (const check of CHECKS) card.append(riskSection(check, supplier.checks[check.type]));
 
   const footer = el("div", "supplier-footer");
   if (supplier.plot_count > 0) {
@@ -134,27 +136,34 @@ function supplierCard(supplier) {
   return card;
 }
 
+// The checks shown on each card, in order. detailLines turns one result's
+// numbers into plain-language lines for the Details list.
+const CHECKS = [
+  { type: "fire", label: "Fire risk", detailLines: fireDetailLines },
+  { type: "forest", label: "Forest loss", detailLines: forestDetailLines },
+];
+
 // FIRE RISK                Details
 // (dot) Fires detected nearby
 // ...with a hidden details list underneath.
-function fireRiskSection(fire) {
+function riskSection(check, outcome) {
   const section = el("div", "risk-section");
   const header = el("div", "risk-header");
-  header.append(el("span", "risk-label", "Fire risk"));
+  header.append(el("span", "risk-label", check.label));
   section.append(header);
 
-  if (!fire) {
+  if (!outcome) {
     section.append(statusLine("not_checked", "Not checked yet"));
     return section;
   }
 
   const detailsButton = el("button", "link-button details-button", "Details");
   header.append(detailsButton);
-  section.append(statusLine(fire.status, fire.summary));
+  section.append(statusLine(outcome.status, outcome.summary));
 
   const details = el("ul", "risk-details");
   details.hidden = true;
-  for (const result of fire.results) details.append(fireDetailItem(result));
+  for (const result of outcome.results) details.append(detailItem(result, check));
 
   detailsButton.addEventListener("click", () => {
     details.hidden = !details.hidden;
@@ -165,13 +174,17 @@ function fireRiskSection(fire) {
   return section;
 }
 
-function fireDetailItem(result) {
-  const d = result.details;
+function detailItem(result, check) {
   const item = el("li");
   const heading = el("div", "detail-heading");
   heading.append(el("strong", null, result.place_name), statusLine(result.status, result.summary));
   item.append(heading);
+  for (const line of check.detailLines(result)) item.append(el("p", "muted", line));
+  return item;
+}
 
+function fireDetailLines(result) {
+  const d = result.details;
   let count;
   if (result.is_mill) {
     count = d.fires_in_sourcing_area
@@ -184,15 +197,36 @@ function fireDetailItem(result) {
   } else {
     count = `No fires within ${d.nearby_km} km`;
   }
-  item.append(el("p", "muted", count));
 
   const nearest =
     d.nearest_km === null
       ? "No fires detected in the last 12 months"
       : `Nearest fire: ${d.nearest_km === 0 ? "on the plot" : `${d.nearest_km} km away`}, ` +
         `${formatDate(d.nearest_date)} (${d.nearest_satellite})`;
-  item.append(el("p", "muted", nearest));
-  return item;
+  return [count, nearest];
+}
+
+function forestDetailLines(result) {
+  const d = result.details;
+  const nearest =
+    d.nearest_km === null
+      ? "No forest loss since 2021 found in the area"
+      : `Nearest clearing: ${d.nearest_km === 0 ? "on the plot" : `${d.nearest_km} km away`} (${d.nearest_year})`;
+
+  if (result.is_mill) {
+    const cleared = d.cleared_in_sourcing_area_ha
+      ? `${formatHectares(d.cleared_in_sourcing_area_ha)} of forest cleared within ${d.radius_km} km of the mill since 2021`
+      : `No forest loss within ${d.radius_km} km of the mill since 2021`;
+    return [cleared, nearest];
+  }
+
+  const forest2020 = d.forest_2020_ha
+    ? `Forest on the plot on 31 Dec 2020: ${formatHectares(d.forest_2020_ha)}`
+    : "No forest on the plot on 31 Dec 2020";
+  const cleared = d.cleared_ha
+    ? `Cleared since 2021: ${formatHectares(d.cleared_ha)} (${d.cleared_years.join(", ")})`
+    : "No clearing on the plot since 2021";
+  return [forest2020, cleared, nearest];
 }
 
 const checkInfo = document.getElementById("check-info");
@@ -200,11 +234,11 @@ const runChecksButton = document.getElementById("run-checks");
 
 function showCheckInfo(lastCheck) {
   if (!lastCheck.checked_at) {
-    checkInfo.textContent = "Not checked yet. Click “Check suppliers” to screen for fire risk.";
+    checkInfo.textContent = "Not checked yet. Click “Check suppliers” to screen for fire and forest loss risk.";
     return;
   }
   const time = lastCheck.checked_at.slice(11, 16);
-  const source = lastCheck.uses_demo_data ? " · Simulated fire data (demo)" : "";
+  const source = lastCheck.uses_demo_data ? " · Simulated fire and forest data (demo)" : "";
   checkInfo.textContent = `Last checked ${formatDate(lastCheck.checked_at)}, ${time}${source}`;
 }
 

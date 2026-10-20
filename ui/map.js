@@ -23,8 +23,15 @@ const FLAME_SVG =
 
 const fireIcon = L.divIcon({ className: "fire-icon", html: FLAME_SVG, iconSize: [18, 18], iconAnchor: [9, 12] });
 
+// Forest layers: muted grey-green for 2020 forest, pink for loss (as on Global
+// Forest Watch), so they never look like the red/amber/green results.
+const FOREST_STYLE = { color: "#5f7259", weight: 0.5, fillColor: "#7d8f6f", fillOpacity: 0.35 };
+const LOSS_STYLE = { color: "#c2185b", weight: 1, fillColor: "#e04f8c", fillOpacity: 0.7 };
+
 let map = null;
 let dataLayer = null;
+let forestLayer = null;
+let lossLayer = null;
 
 function createMap() {
   // Start centred on Ketapang. Leaflet needs a starting view before it can
@@ -51,6 +58,19 @@ function createMap() {
   L.control.scale({ imperial: false }).addTo(map);
   createLegend().addTo(map);
 
+  // 3. Forest layers, drawn below plots and fire icons (Leaflet's shapes sit at 400).
+  map.createPane("forest2020").style.zIndex = 350;
+  map.createPane("forestLoss").style.zIndex = 360;
+  forestLayer = L.featureGroup().addTo(map);
+  lossLayer = L.featureGroup().addTo(map);
+  L.control
+    .layers(
+      null,
+      { "Forest on 31 Dec 2020 (demo)": forestLayer, "Forest loss since 2021 (demo)": lossLayer },
+      { position: "topright", collapsed: false }
+    )
+    .addTo(map);
+
   dataLayer = L.featureGroup().addTo(map);
 }
 
@@ -59,11 +79,13 @@ function createLegend() {
   legend.onAdd = () => {
     const box = el("div", "map-legend");
     const rows = [
-      ["legend-plot legend-plot-red", "Plot: fire detected on plot"],
-      ["legend-plot legend-plot-amber", "Plot: fires detected nearby"],
-      ["legend-plot legend-plot-green", "Plot: no fires detected nearby"],
+      ["legend-plot legend-plot-red", "Plot: risk found"],
+      ["legend-plot legend-plot-amber", "Plot: possible risk"],
+      ["legend-plot legend-plot-green", "Plot: no risk found"],
       ["legend-plot", "Plot: not checked yet"],
       ["legend-fire", "Fire detection (last 12 months)"],
+      ["legend-forest", "Forest on 31 Dec 2020"],
+      ["legend-loss", "Forest loss since 2021"],
       ["legend-mill", "Mill"],
       ["legend-sourcing", "Plot data missing: possible sourcing area (50 km)"],
     ];
@@ -91,10 +113,18 @@ function plotPopup(plot) {
   const box = el("div", "map-popup");
   box.append(
     el("strong", null, plot.supplier_name),
-    el("p", "muted", `${plot.name} · ${formatHectares(plot.area_ha)}`),
-    statusLine(plot.risk_status, plot.fire_summary || "Not checked yet"),
-    certificationBadge(plot.certification)
+    el("p", "muted", `${plot.name} · ${formatHectares(plot.area_ha)}`)
   );
+  for (const check of CHECKS) {
+    const result = plot.checks[check.type];
+    const line = el("div", "popup-check");
+    line.append(
+      el("span", "popup-check-label", check.label),
+      result ? statusLine(result.status, result.summary) : statusLine("not_checked", "Not checked yet")
+    );
+    box.append(line);
+  }
+  box.append(certificationBadge(plot.certification));
   return box;
 }
 
@@ -133,6 +163,17 @@ async function renderMap() {
   if (!map) createMap();
   map.invalidateSize(); // the map was hidden, so let Leaflet re-measure it
   dataLayer.clearLayers();
+  forestLayer.clearLayers();
+  lossLayer.clearLayers();
+
+  for (const geometry of data.forest_2020) {
+    L.geoJSON(geometry, { pane: "forest2020", style: FOREST_STYLE, interactive: false }).addTo(forestLayer);
+  }
+  for (const loss of data.forest_loss) {
+    L.geoJSON(loss.geometry, { pane: "forestLoss", style: LOSS_STYLE })
+      .bindTooltip(`Forest loss in ${loss.year}`)
+      .addTo(lossLayer);
+  }
 
   for (const area of data.sourcing_areas) {
     L.circle([area.latitude, area.longitude], {

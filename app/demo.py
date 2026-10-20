@@ -8,20 +8,33 @@ from app.geometry import area_hectares
 DEMO_FOLDER = Path(__file__).parent.parent / "demo_data"
 DEMO_FILE = DEMO_FOLDER / "ketapang_demo.json"
 DEMO_FIRES_FILE = DEMO_FOLDER / "ketapang_fires.json"
+DEMO_FOREST_FILE = DEMO_FOLDER / "ketapang_forest.json"
 
 
-def load_demo_data(conn, demo_file=DEMO_FILE, fires_file=DEMO_FIRES_FILE):
+def load_demo_data(conn, demo_file=DEMO_FILE, fires_file=DEMO_FIRES_FILE, forest_file=DEMO_FOREST_FILE):
     """Replace any old example data with a fresh copy. Returns the number of suppliers.
 
     Only rows marked as demo data are removed, so suppliers the user added stay.
     """
     data = json.loads(Path(demo_file).read_text(encoding="utf-8"))
     fires = json.loads(Path(fires_file).read_text(encoding="utf-8"))
+    forest = json.loads(Path(forest_file).read_text(encoding="utf-8"))
 
     with conn:  # one transaction: either everything is saved or nothing
         # Mills, plots and check results of these suppliers are removed too (ON DELETE CASCADE).
         conn.execute("DELETE FROM suppliers WHERE is_demo = 1")
         conn.execute("DELETE FROM fire_hotspots WHERE is_demo = 1")
+        conn.execute("DELETE FROM forest_2020 WHERE is_demo = 1")
+        conn.execute("DELETE FROM forest_loss WHERE is_demo = 1")
+
+        conn.executemany(
+            "INSERT INTO forest_2020 (geometry, is_demo) VALUES (?, 1)",
+            [(json.dumps(area["geometry"]),) for area in forest["forest_2020"]],
+        )
+        conn.executemany(
+            "INSERT INTO forest_loss (geometry, loss_year, is_demo) VALUES (?, ?, 1)",
+            [(json.dumps(area["geometry"]), area["loss_year"]) for area in forest["forest_loss"]],
+        )
 
         conn.executemany(
             """

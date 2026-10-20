@@ -99,7 +99,7 @@ class DatabaseFireTests(unittest.TestCase):
         fire.run_fire_check(self.conn, today=TODAY)
         database.update_plot_risk_status(self.conn)
 
-        results = {s["name"]: s["fire"]["status"] for s in database.get_suppliers(self.conn)}
+        results = {s["name"]: s["checks"]["fire"]["status"] for s in database.get_suppliers(self.conn)}
         self.assertEqual(
             results,
             {
@@ -126,7 +126,7 @@ class DatabaseFireTests(unittest.TestCase):
         load_demo_data(self.conn)
         count = self.conn.execute("SELECT COUNT(*) FROM check_results").fetchone()[0]
         self.assertEqual(count, 0)
-        self.assertTrue(all(s["fire"] is None for s in database.get_suppliers(self.conn)))
+        self.assertTrue(all(s["checks"]["fire"] is None for s in database.get_suppliers(self.conn)))
 
 
 if __name__ == "__main__":

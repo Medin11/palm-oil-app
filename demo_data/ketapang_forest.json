@@ -1,0 +1,59 @@
+{
+  "description": "SIMULATED forest data for the offline demo. These areas are made up and are not real forest maps (not JRC, Hansen or Global Forest Watch data). They are placed in Ketapang, West Kalimantan, so the demo suppliers show green, amber and red results.",
+  "source_label": "Simulated forest data (demo)",
+  "forest_2020": [
+    {
+      "name": "Sandai forest edge",
+      "geometry": { "type": "Polygon", "coordinates": [[[110.535, -1.240], [110.570, -1.2405], [110.600, -1.232], [110.602, -1.195], [110.565, -1.188], [110.536, -1.200], [110.535, -1.240]]] }
+    },
+    {
+      "name": "Manis Mata forest",
+      "geometry": { "type": "Polygon", "coordinates": [[[110.545, -2.110], [110.575, -2.111], [110.576, -2.0885], [110.560, -2.087], [110.546, -2.090], [110.545, -2.110]]] }
+    },
+    {
+      "name": "Marau forest",
+      "geometry": { "type": "Polygon", "coordinates": [[[110.780, -2.275], [110.840, -2.276], [110.841, -2.2450], [110.810, -2.2445], [110.781, -2.2455], [110.780, -2.275]]] }
+    },
+    {
+      "name": "Kendawangan forest",
+      "geometry": { "type": "Polygon", "coordinates": [[[110.330, -2.480], [110.400, -2.481], [110.401, -2.430], [110.365, -2.428], [110.331, -2.432], [110.330, -2.480]]] }
+    }
+  ],
+  "forest_loss": [
+    {
+      "name": "Clearing on Block B1",
+      "loss_year": 2023,
+      "geometry": { "type": "Polygon", "coordinates": [[[110.5400, -1.2395], [110.5432, -1.2396], [110.5434, -1.2362], [110.5402, -1.2360], [110.5400, -1.2395]]] }
+    },
+    {
+      "name": "Clearing on Plot south",
+      "loss_year": 2026,
+      "geometry": { "type": "Polygon", "coordinates": [[[110.5620, -2.0985], [110.5680, -2.0986], [110.5682, -2.0940], [110.5622, -2.0938], [110.5620, -2.0985]]] }
+    },
+    {
+      "name": "Clearing south of Marau estate",
+      "loss_year": 2022,
+      "geometry": { "type": "Polygon", "coordinates": [[[110.8000, -2.2505], [110.8040, -2.2506], [110.8041, -2.2465], [110.8001, -2.2464], [110.8000, -2.2505]]] }
+    },
+    {
+      "name": "Clearing in Kendawangan forest",
+      "loss_year": 2024,
+      "geometry": { "type": "Polygon", "coordinates": [[[110.3500, -2.4600], [110.3570, -2.4602], [110.3572, -2.4535], [110.3502, -2.4533], [110.3500, -2.4600]]] }
+    },
+    {
+      "name": "Replanting on Smallholder plot 2 (not forest in 2020)",
+      "loss_year": 2024,
+      "geometry": { "type": "Polygon", "coordinates": [[[110.5320, -1.5510], [110.5340, -1.5511], [110.5341, -1.5490], [110.5321, -1.5489], [110.5320, -1.5510]]] }
+    },
+    {
+      "name": "Clearing in Sandai forest",
+      "loss_year": 2025,
+      "geometry": { "type": "Polygon", "coordinates": [[[110.5700, -1.2100], [110.5800, -1.2102], [110.5802, -1.2000], [110.5702, -1.1998], [110.5700, -1.2100]]] }
+    },
+    {
+      "name": "Clearing in east Marau forest",
+      "loss_year": 2021,
+      "geometry": { "type": "Polygon", "coordinates": [[[110.8300, -2.2700], [110.8380, -2.2701], [110.8381, -2.2620], [110.8301, -2.2619], [110.8300, -2.2700]]] }
+    }
+  ]
+}

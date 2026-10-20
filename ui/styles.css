@@ -412,6 +412,34 @@ h1 {
 
 .legend-fire svg { display: block; width: 14px; height: 14px; }
 
+.legend-forest { border: 1px solid #5f7259; border-radius: 3px; background: rgba(125, 143, 111, 0.45); }
+.legend-loss   { border: 1px solid #c2185b; border-radius: 3px; background: rgba(224, 79, 140, 0.75); }
+
+/* Layer switch in the top-right corner of the map */
+.leaflet-control-layers {
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow) !important;
+  color: #1f2a24;
+  font-size: 12px;
+}
+
+/* Fire and forest result lines inside a plot popup */
+.popup-check {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 2px;
+}
+
+.popup-check-label {
+  color: #6b746e;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .fire-icon { background: none; border: none; }
 .fire-icon svg { display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)); }
 

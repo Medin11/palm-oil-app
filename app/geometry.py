@@ -23,17 +23,27 @@ def _to_metres(geom, centre_lat):
     return shapely.transform(geom, convert)
 
 
+def shape_area_hectares(geom):
+    """Area of a Shapely shape (in degrees) in hectares."""
+    if geom.is_empty:
+        return 0.0
+    return _to_metres(geom, geom.centroid.y).area / 10_000
+
+
 def area_hectares(geojson_geometry):
     """Area of a GeoJSON polygon in hectares."""
-    geom = shape(geojson_geometry)
-    return _to_metres(geom, geom.centroid.y).area / 10_000
+    return shape_area_hectares(shape(geojson_geometry))
+
+
+def shapes_distance_metres(a, b):
+    """Shortest distance between two Shapely shapes in metres. 0 if they touch or overlap."""
+    centre_lat = a.centroid.y
+    return _to_metres(a, centre_lat).distance(_to_metres(b, centre_lat))
 
 
 def distance_to_plot_metres(geojson_geometry, latitude, longitude):
     """Distance from a point to a plot in metres. 0 if the point is inside."""
-    plot = shape(geojson_geometry)
-    centre_lat = plot.centroid.y
-    return _to_metres(plot, centre_lat).distance(_to_metres(Point(longitude, latitude), centre_lat))
+    return shapes_distance_metres(shape(geojson_geometry), Point(longitude, latitude))
 
 
 def distance_between_points_metres(lat1, lon1, lat2, lon2):

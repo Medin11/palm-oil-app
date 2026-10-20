@@ -10,9 +10,9 @@ area around the mill instead.
 """
 
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
-from app.database import SOURCING_RADIUS_KM
+from app.database import SOURCING_RADIUS_KM, plots_and_mill_only_suppliers, save_check_results
 from app.geometry import distance_between_points_metres, distance_to_plot_metres
 
 # A satellite fire pixel is about 375 m wide (VIIRS), so a fire just outside
@@ -97,33 +97,16 @@ def run_fire_check(conn, today=None):
     Returns how many results were saved.
     """
     hotspots = relevant_hotspots(conn, today)
-    checked_at = datetime.now().isoformat(timespec="seconds")
+    plots, mills = plots_and_mill_only_suppliers(conn)
     results = []  # (supplier_id, plot_id, mill_id, status, summary, details)
 
-    for plot in conn.execute("SELECT id, supplier_id, geometry FROM plots"):
+    for plot in plots:
         status, summary, details = check_plot(json.loads(plot["geometry"]), hotspots)
         results.append((plot["supplier_id"], plot["id"], None, status, summary, details))
 
-    for mill in conn.execute(
-        """
-        SELECT m.id, m.supplier_id, m.latitude, m.longitude FROM mills m
-        WHERE NOT EXISTS (SELECT 1 FROM plots p WHERE p.supplier_id = m.supplier_id)
-        """
-    ):
+    for mill in mills:
         status, summary, details = check_mill_only(mill["latitude"], mill["longitude"], hotspots)
         results.append((mill["supplier_id"], None, mill["id"], status, summary, details))
 
-    with conn:  # one transaction
-        conn.execute("DELETE FROM check_results WHERE check_type = ?", (CHECK_TYPE,))
-        conn.executemany(
-            """
-            INSERT INTO check_results
-                (supplier_id, plot_id, mill_id, check_type, status, summary, details, checked_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                (supplier_id, plot_id, mill_id, CHECK_TYPE, status, summary, json.dumps(details), checked_at)
-                for supplier_id, plot_id, mill_id, status, summary, details in results
-            ],
-        )
+    save_check_results(conn, CHECK_TYPE, results)
     return len(results)
